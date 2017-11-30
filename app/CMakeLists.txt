@@ -4,7 +4,7 @@ add_library(
              SHARED
              src/main/cpp/native-lib.cpp 
 			              src/main/cpp/FFmpegVideo.cpp
-			              src/main/cpp/FFmpegMusic.cpp
+			              src/main/cpp/FFmpegAudio.cpp
 
 			 )
 include_directories(libs/include)
@@ -72,7 +72,6 @@ target_link_libraries( native-lib
                        swresample-1
                        swscale-3
                        ${log-lib}
-
                        android
                        OpenSLES
                        )

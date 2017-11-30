@@ -3,7 +3,7 @@
 #include "log.h"
 #include <pthread.h>
 #include "FFmpegVideo.h"
-#include "FFmpegMusic.h"
+#include "FFmpegAudio.h"
 #include <android/native_window_jni.h>
 
 extern "C" {
@@ -11,7 +11,7 @@ extern "C" {
 }
 pthread_t main_tid;
 FFmpegVideo *video;
-FFmpegMusic *audio;
+FFmpegAudio *audio;
 AVFormatContext *ifmt_ctx;
 ANativeWindow* window;
 ANativeWindow_Buffer window_buffer;
@@ -66,18 +66,22 @@ void *main_run(void *argc) {
                                                  WINDOW_FORMAT_RGBA_8888);
             }
         }
-
         if(pCodeCtx->codec_type == AVMEDIA_TYPE_AUDIO){
-
+            audio_id = i;
+            audio->setAvCodecContext(codec);
+            audio->p_playid=audio_id;
+            audio->time_base=ifmt_ctx->streams[i]->time_base;
         }
-
     }
     video->play();
-
+    audio->play();
     AVPacket* packet = (AVPacket *) malloc(sizeof(AVPacket));
     while (av_read_frame(ifmt_ctx,packet)>=0) {
-        video->put(packet);
-//        audio->put(count);
+        if (video && video->is_playing && packet->stream_index == video_id) {
+            video->put(packet);
+        } else  if (audio&& audio->isPlay && packet->stream_index == audio_id) {
+            audio->put(packet);
+        }
         av_packet_unref(packet);
     }
     pthread_exit(0);
@@ -98,7 +102,7 @@ Java_onairm_com_syncdemo_ZzpPlayer_play(JNIEnv *env, jobject instance, jstring p
     char *copy_path = (char *) memcpy(s2, path, strlen(path) + 1);
 
     video = new FFmpegVideo();
-//    audio = new FFmpegMusic();
+    audio = new FFmpegAudio();
     video->set_draw_fun(draw_frame);
     pthread_create(&main_tid, NULL, main_run, (void *) copy_path);
 
