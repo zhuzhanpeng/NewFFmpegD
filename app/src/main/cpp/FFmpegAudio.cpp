@@ -30,13 +30,12 @@ int getPcm(FFmpegAudio *audio) {
         }
         //解码  mp3   编码格式frame----pcm   frame
         avcodec_decode_audio4(audio->pCodecCtx, frame, &got_frame, packet);
-        LOGE("got%d",got_frame);
         if (got_frame) {
             swr_convert(audio->swrContext, &audio->out_buffer, 44100 * 2,
                         (const uint8_t **) frame->data, frame->nb_samples);
             //缓冲区的大小
             size = av_samples_get_buffer_size(NULL, audio->out_channel_nb, frame->nb_samples,
-                                              AV_SAMPLE_FMT_S16, 1);
+                                              AV_SAMPLE_FMT_S16P, 1);
             break;
         }
     }
