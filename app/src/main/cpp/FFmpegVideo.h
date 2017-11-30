@@ -8,16 +8,23 @@
 #define NEWFFMPEGD_MASTER_FFMPEGVIDEO_H
 
 #endif //NEWFFMPEGD_MASTER_FFMPEGVIDEO_H
-
+extern "C"{
+#include <libavcodec/avcodec.h>
+};
 class FFmpegVideo{
 public:
     FFmpegVideo();
     ~FFmpegVideo();
-    void get(int* value);
-    void put(int value);
+    void get(AVPacket* packet);
+    void put(AVPacket* packet);
+    void set_draw_fun(void (*temp)(AVFrame*));
+    void setCodecContext(AVCodecContext* adec_ctx);
+    void play();
 public:
-    std::queue<int> queue;
+    int is_playing;
+    std::queue<AVPacket*> queue;
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
     pthread_t video_tid;
+    AVCodecContext *adec_ctx;
 };

@@ -4,6 +4,7 @@ add_library(
              SHARED
              src/main/cpp/native-lib.cpp 
 			              src/main/cpp/FFmpegVideo.cpp
+			              src/main/cpp/FFmpegMusic.cpp
 
 			 )
 include_directories(libs/include)
