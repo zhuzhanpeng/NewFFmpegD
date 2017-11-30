@@ -14,18 +14,14 @@ FFmpegVideo *video;
 FFmpegMusic *audio;
 AVFormatContext *ifmt_ctx;
 ANativeWindow* window;
-
+ANativeWindow_Buffer window_buffer;
 void draw_frame(AVFrame* frame) {
     if (!window) {
         return;
     }
-    ANativeWindow_Buffer window_buffer;
     if (ANativeWindow_lock(window, &window_buffer, 0)) {
         return;
     }
-
-    LOGE("绘制 宽%d,高%d",frame->width,frame->height);
-    LOGE("绘制 宽%d,高%d  行字节 %d ",window_buffer.width,window_buffer.height, frame->linesize[0]);
     uint8_t *dst = (uint8_t *) window_buffer.bits;
     int dstStride = window_buffer.stride * 4;
     uint8_t *src = frame->data[0];
@@ -65,20 +61,23 @@ void *main_run(void *argc) {
         if (pCodeCtx->codec_type == AVMEDIA_TYPE_VIDEO) {
             video_id = i;
             video->setCodecContext(codec);
+            if (video && video->adec_ctx) {
+                ANativeWindow_setBuffersGeometry(window, video->adec_ctx->width, video->adec_ctx->height,
+                                                 WINDOW_FORMAT_RGBA_8888);
+            }
         }
-        if (video && video->adec_ctx) {
-            ANativeWindow_setBuffersGeometry(window, video->adec_ctx->width, video->adec_ctx->height,
-                                             WINDOW_FORMAT_RGBA_8888);
+
+        if(pCodeCtx->codec_type == AVMEDIA_TYPE_AUDIO){
+
         }
+
     }
     video->play();
 
     AVPacket* packet = (AVPacket *) malloc(sizeof(AVPacket));
-    int count = 1;
     while (av_read_frame(ifmt_ctx,packet)>=0) {
         video->put(packet);
 //        audio->put(count);
-        count++;
         av_packet_unref(packet);
     }
     pthread_exit(0);

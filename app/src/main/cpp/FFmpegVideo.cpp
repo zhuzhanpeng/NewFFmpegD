@@ -3,6 +3,7 @@
 extern "C"{
 #include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/time.h>
 }
 static void (*frame_call)(AVFrame* rgb);
 void* video_run(void* argc){
@@ -35,7 +36,7 @@ void* video_run(void* argc){
                            video->adec_ctx->height,
                            rgb_frame->data, rgb_frame->linesize);
         frame_call(rgb_frame);
-
+//        av_usleep(0);
     }
     pthread_exit(0);
 }
@@ -56,12 +57,10 @@ void FFmpegVideo::get(AVPacket* pkt){
     pthread_mutex_lock(&mutex);
     while (true){
         if(!queue.empty()){
-            LOGE("empty");
             //此处有疑问
             //从队列取出一个packet，clone一个给入参对象
             if(av_packet_ref(pkt, queue.front())==0){
                 LOGE("取出一帧视频");
-//                break;
             }
             //取成功了 弹出队列 销毁packet
             AVPacket *packet = queue.front();
