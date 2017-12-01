@@ -37,7 +37,7 @@ void* video_run(void* argc){
         if (!got_frame) {
             continue;
         }
-        double timestamp = av_frame_get_best_effort_timestamp(frame)*av_q2d(video->time_base);
+       timestamp = av_frame_get_best_effort_timestamp(frame)*av_q2d(video->time_base);
 //        转码成rgb
         int code=sws_scale(sws_ctx, (const uint8_t *const *)frame->data, frame->linesize, 0,
                            video->adec_ctx->height,

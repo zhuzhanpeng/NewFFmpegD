@@ -31,7 +31,7 @@ int getPcm(FFmpegAudio *audio) {
         //解码  mp3   编码格式frame----pcm   frame
         avcodec_decode_audio4(audio->pCodecCtx, frame, &got_frame, packet);
         if (got_frame) {
-            audio->clock=frame->pkt_pts * av_q2d(audio->time_base);
+//            audio->clock=frame->pkt_pts * av_q2d(audio->time_base)+35;
             swr_convert(audio->swrContext, &audio->out_buffer, 44100 * 2,
                         (const uint8_t **) frame->data, frame->nb_samples);
             //缓冲区的大小
