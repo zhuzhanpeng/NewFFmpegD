@@ -8,6 +8,8 @@
 #define NEWFFMPEGD_MASTER_FFMPEGVIDEO_H
 
 #endif //NEWFFMPEGD_MASTER_FFMPEGVIDEO_H
+
+#include "FFmpegAudio.h"
 extern "C"{
 #include <libavcodec/avcodec.h>
 };
@@ -20,6 +22,7 @@ public:
     void set_draw_fun(void (*temp)(AVFrame*));
     void setCodecContext(AVCodecContext* adec_ctx);
     void play();
+    void setAudio(FFmpegAudio*);
 public:
     int is_playing;
     std::queue<AVPacket*> queue;
@@ -27,4 +30,6 @@ public:
     pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
     pthread_t video_tid;
     AVCodecContext *adec_ctx;
+    AVRational time_base;
+    FFmpegAudio* audio;
 };

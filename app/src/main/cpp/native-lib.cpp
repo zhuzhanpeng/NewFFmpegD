@@ -61,6 +61,7 @@ void *main_run(void *argc) {
         if (pCodeCtx->codec_type == AVMEDIA_TYPE_VIDEO) {
             video_id = i;
             video->setCodecContext(codec);
+            video->time_base=ifmt_ctx->streams[i]->time_base;
             if (video && video->adec_ctx) {
                 ANativeWindow_setBuffersGeometry(window, video->adec_ctx->width, video->adec_ctx->height,
                                                  WINDOW_FORMAT_RGBA_8888);
@@ -103,6 +104,7 @@ Java_onairm_com_syncdemo_ZzpPlayer_play(JNIEnv *env, jobject instance, jstring p
 
     video = new FFmpegVideo();
     audio = new FFmpegAudio();
+    video->setAudio(audio);
     video->set_draw_fun(draw_frame);
     pthread_create(&main_tid, NULL, main_run, (void *) copy_path);
 
