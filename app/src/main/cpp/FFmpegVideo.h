@@ -23,6 +23,7 @@ public:
     void setCodecContext(AVCodecContext* adec_ctx);
     void play();
     void setAudio(FFmpegAudio*);
+    double synchronize(AVFrame *frame, double play);
 public:
     int is_playing;
     std::queue<AVPacket*> queue;
@@ -32,4 +33,5 @@ public:
     AVCodecContext *adec_ctx;
     AVRational time_base;
     FFmpegAudio* audio;
+    double  clock;
 };

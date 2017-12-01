@@ -1,8 +1,3 @@
-
-//
-// Created by zhaopf on 2017/10/9.
-//
-
 #include "FFmpegAudio.h"
 
 extern "C" {
@@ -26,12 +21,11 @@ int getPcm(FFmpegAudio *audio) {
         audio->get(packet);
         LOGE("packet%d",packet->size);
         if (packet->pts != AV_NOPTS_VALUE) {
-            audio->clock = av_q2d(audio->time_base) * packet->pts;
+            audio->clock = frame->pkt_pts * av_q2d(audio->time_base);
         }
         //解码  mp3   编码格式frame----pcm   frame
         avcodec_decode_audio4(audio->pCodecCtx, frame, &got_frame, packet);
         if (got_frame) {
-//            audio->clock=frame->pkt_pts * av_q2d(audio->time_base)+35;
             swr_convert(audio->swrContext, &audio->out_buffer, 44100 * 2,
                         (const uint8_t **) frame->data, frame->nb_samples);
             //缓冲区的大小
@@ -54,9 +48,9 @@ void bgPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
     int datalen = getPcm(audio);
     LOGE("%d", datalen);
     if (datalen > 0) {
-        double time = datalen / ((double) 44100 * 2 * 2);
+       double time = datalen / ((double) 44100 * 2 * 2);
         LOGE("数据长度%d  分母%d  值%f 通道数%d", datalen, 44100 * 2 * 2, time, audio->out_channel_nb);
-        audio->clock = audio->clock + time;
+//        audio->clock = audio->clock + time;
         LOGE("当前一帧声音时间%f   播放时间%f", time, audio->clock);
         (*bq)->Enqueue(bq, audio->out_buffer, datalen);
         LOGE("播放 %d ", audio->queue.size());
